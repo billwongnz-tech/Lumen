@@ -61,7 +61,6 @@ const cards = [
   "circuit4.jpg",
   "circuit5.jpg",
   "circuit6.jpg"
-  // Add more later: "circuit7.jpg", etc.
 ];
 
 let current = 0;
@@ -73,6 +72,7 @@ const imgEl = document.getElementById('cardImg');
 const numberEl = document.getElementById('number');
 const timerEl = document.getElementById('timer');
 const jumpSelect = document.getElementById('jump');
+const startBtn = document.getElementById('startBtn');
 
 function showCard(index) {
   current = index;
@@ -86,7 +86,7 @@ function resetTimer() {
   running = false;
   timeLeft = 60;
   timerEl.textContent = "1:00";
-  document.getElementById('startBtn').textContent = "Start";
+  startBtn.textContent = "Start";
 }
 
 function updateTimerDisplay() {
@@ -98,28 +98,32 @@ function updateTimerDisplay() {
 function startTimer() {
   if (running) return;
   running = true;
-  document.getElementById('startBtn').textContent = "Running";
+  startBtn.textContent = "Running";
   timerId = setInterval(() => {
     timeLeft--;
     updateTimerDisplay();
-    if (timeLeft <= 0) nextCard();
+    if (timeLeft <= 0) {
+      nextCard(true); // auto-advance and keep running
+    }
   }, 1000);
 }
 
 function pauseTimer() {
   clearInterval(timerId);
   running = false;
-  document.getElementById('startBtn').textContent = "Start";
+  startBtn.textContent = "Start";
 }
 
-function nextCard() {
+function nextCard(auto = false) {
   if (current < cards.length - 1) {
     showCard(current + 1);
+    if (auto) startTimer(); // restart timer automatically
   } else {
     clearInterval(timerId);
     running = false;
     timerEl.textContent = "Done";
     numberEl.textContent = "Session complete";
+    startBtn.textContent = "Start";
   }
 }
 
@@ -131,9 +135,9 @@ cards.forEach((_, i) => {
   jumpSelect.appendChild(opt);
 });
 
-document.getElementById('startBtn').onclick = startTimer;
+startBtn.onclick = startTimer;
 document.getElementById('pauseBtn').onclick = pauseTimer;
-document.getElementById('nextBtn').onclick = nextCard;
+document.getElementById('nextBtn').onclick = () => nextCard(false);
 jumpSelect.onchange = () => {
   if (jumpSelect.value !== "") showCard(parseInt(jumpSelect.value));
 };
